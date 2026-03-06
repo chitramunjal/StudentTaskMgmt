@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Welcome back, {{ name }}! ✨</h1>
+<p style="color: #6b7280; margin-bottom: 2rem;">Here is your cloud dashboard for your tasks and notes.</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+    <!-- Tasks Section -->
+    <div>
+        <div class="card" style="border-top: 4px solid var(--primary);">
+            <h3>Add New Task</h3>
+            <form action="{{ url_for('add_task') }}" method="POST">
+                <div class="form-group">
+                    <label>Task Title</label>
+                    <input type="text" name="title" placeholder="E.g., Finish Cloud Computing assignment" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="More details about this task..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Deadline</label>
+                    <input type="date" name="deadline" required>
+                </div>
+                <button type="submit" style="width: 100%;">+ Add Task</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h3 style="margin-bottom: 0;">Your Tasks</h3>
+            {% if tasks %}
+                <table>
+                    <thead><tr><th>Task</th><th>Deadline</th><th>Status & Actions</th></tr></thead>
+                    <tbody>
+                        {% for task in tasks %}
+                        <tr>
+                            <td>
+                                <strong>{{ task.task_title }}</strong><br>
+                                <small style="color: #6b7280;">{{ task.description }}</small>
+                            </td>
+                            <td>{{ task.deadline }}</td>
+                            <td>
+                                <div style="margin-bottom: 0.5rem;">
+                                    {% if task.status == 'completed' %}
+                                        <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; background: #d1fae5; color: #065f46; font-size: 0.8rem; font-weight: 600;">✓ Completed</span>
+                                    {% else %}
+                                        <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.8rem; font-weight: 600;">Pending</span>
+                                    {% endif %}
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    {% if task.status == 'pending' %}
+                                    <form action="{{ url_for('edit_task', task_id=task.task_id) }}" method="POST" style="margin: 0;">
+                                        <input type="hidden" name="status" value="completed">
+                                        <button type="submit" class="btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Done</button>
+                                    </form>
+                                    {% endif %}
+                                    <form action="{{ url_for('delete_task', task_id=task.task_id) }}" method="POST" style="margin: 0;">
+                                        <button type="submit" class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: #6b7280; padding: 1rem 0;">No tasks found. Add some!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Notes Section -->
+    <div>
+        <div class="card" style="border-top: 4px solid #10b981;">
+            <h3>Upload Study Material</h3>
+            <form action="{{ url_for('upload_note') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Select PDF File to Upload to Cloud</label>
+                    <input type="file" name="note_file" accept=".pdf" required>
+                </div>
+                <button type="submit" style="width: 100%; background-color: #10b981;">Upload to S3 Bucket</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h3 style="margin-bottom: 0;">Cloud Object Storage</h3>
+            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0;">Files stored in S3 Cloud Container.</p>
+            {% if notes %}
+                <table>
+                    <thead><tr><th>File Name</th><th>Date</th><th>Link</th></tr></thead>
+                    <tbody>
+                        {% for note in notes %}
+                        <tr>
+                            <td>
+                                <strong>{{ note.file_name }}</strong>
+                            </td>
+                            <td style="color: #6b7280; font-size: 0.875rem;">{{ note.upload_date }}</td>
+                            <td>
+                                <a href="{{ note.file_url }}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    View Box ↗
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: #6b7280; padding: 1rem 0;">No notes uploaded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
