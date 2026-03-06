@@ -8,12 +8,12 @@ This repository contains the source code for a cloud-ready Student Task and Note
    ```bash
    docker-compose up --build
    ```
-3. Open your browser and navigate to `http://localhost:5000`
+3. Open your browser and navigate to `http://localhost:5001`
 
 ## Cloud Deployment Guide (Demo)
 During your project demo, follow these steps to demonstrate the full application running on your Cloud VM (e.g., AWS EC2, Ubuntu Server):
 
-1. **Launch Cloud Instance**: Make sure you have opened ports 22 (SSH), 80 (HTTP), and 5000 (app).
+1. **Launch Cloud Instance**: Make sure you have opened ports 22 (SSH), 80 (HTTP), and 5001 (app).
 2. **Install Docker** on the Cloud VM:
    ```bash
    sudo apt update
@@ -26,7 +26,7 @@ During your project demo, follow these steps to demonstrate the full application
    sudo docker-compose up -d --build
    ```
 4. **Access the Application**:
-   Navigate to `http://<YOUR_VM_PUBLIC_IP>:5000`
+   Navigate to `http://<YOUR_VM_PUBLIC_IP>:5001`
 
 ### Important Cloud Concepts Demonstrated
 - **SaaS idea**: Web Application interface for task tracking.
