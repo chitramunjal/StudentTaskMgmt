@@ -49,3 +49,13 @@ By completing this project, the following cloud computing concepts have been suc
 | **Version Control** | GitHub Integration bridging local development to Cloud deployment. |
 | **Storage** | Object storage utilized via S3 for scalable file hosting. |
 | **Networking** | Security groups tightly controlling access at the packet level. |
+| **Monitoring (UI)** | Dashboard integrated with mock cloud metrics (CPU/Disk) to demonstrate real-time monitoring concepts. |
+
+---
+
+### 5. Enhanced Development Features (Phase 4)
+To exceed the basic requirements, the system now includes:
+- **Task Prioritization**: Enums used in the database (`Low`, `Medium`, `High`) to help students manage workloads.
+- **Dynamic Filtering**: Real-time SQL-based search and priority filtering on the Dashboard.
+- **Modern UX/UI**: A premium design system using Glassmorphism, CSS gradients, and the Outfit typography.
+- **Cloud Metrics Dashboard**: Provides the user with a bird's-eye view of server health, simulating a managed cloud infrastructure.

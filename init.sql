@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     description TEXT,
     deadline DATE,
     status ENUM('pending', 'completed') DEFAULT 'pending',
+    priority ENUM('Low', 'Medium', 'High') DEFAULT 'Medium',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

@@ -1,60 +1,135 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Welcome back, {{ name }}! ✨</h1>
-<p style="color: #6b7280; margin-bottom: 2rem;">Here is your cloud dashboard for your tasks and notes.</p>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-    <!-- Tasks Section -->
+<!-- Cloud Stats Ribbon -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="glass-card" style="padding: 1.25rem; margin-bottom: 0;">
+        <small style="color: var(--text-muted); display: block;">CPU Usage</small>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-light);">{{ cloud_stats.cpu_usage }}</div>
+        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 0.5rem;">
+            <div style="height: 100%; width: 24%; background: var(--primary-light); border-radius: 2px;"></div>
+        </div>
+    </div>
+    <div class="glass-card" style="padding: 1.25rem; margin-bottom: 0;">
+        <small style="color: var(--text-muted); display: block;">Memory</small>
+        <div style="font-size: 1.5rem; font-weight: 700;">{{ cloud_stats.memory_usage }}</div>
+        <small style="color: var(--success); font-weight: 600;">Status: Healthy</small>
+    </div>
+    <div class="glass-card" style="padding: 1.25rem; margin-bottom: 0;">
+        <small style="color: var(--text-muted); display: block;">Disk Storage</small>
+        <div style="font-size: 1.5rem; font-weight: 700;">{{ cloud_stats.disk_usage }}</div>
+        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 0.5rem;">
+            <div style="height: 100%; width: 42%; background: var(--secondary); border-radius: 2px;"></div>
+        </div>
+    </div>
+    <div class="glass-card" style="padding: 1.25rem; margin-bottom: 0;">
+        <small style="color: var(--text-muted); display: block;">Uptime</small>
+        <div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.3rem;">{{ cloud_stats.uptime }}</div>
+        <small style="color: var(--text-muted);">Region: Cloud-Node-01</small>
+    </div>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
     <div>
-        <div class="card" style="border-top: 4px solid var(--primary);">
-            <h3>Add New Task</h3>
+        <h1 style="margin: 0; font-size: 2.25rem;">Welcome, {{ name }}! ✨</h1>
+        <p style="color: var(--text-muted); margin: 0.5rem 0 0 0;">Manage your academic cloud assets from one place.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <form action="{{ url_for('dashboard') }}" method="GET" style="display: flex; gap: 0.5rem;">
+            <input type="text" name="search" placeholder="Search tasks..." value="{{ search_query }}" style="width: 200px; padding: 0.6rem 1rem;">
+            <select name="priority" style="width: 120px; padding: 0.6rem 1rem;">
+                <option value="">All Priorities</option>
+                <option value="Low" {% if priority_filter == 'Low' %}selected{% endif %}>Low</option>
+                <option value="Medium" {% if priority_filter == 'Medium' %}selected{% endif %}>Medium</option>
+                <option value="High" {% if priority_filter == 'High' %}selected{% endif %}>High</option>
+            </select>
+            <button type="submit" class="btn btn-secondary">Filter</button>
+            {% if search_query or priority_filter %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="padding: 0.6rem 1rem;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem;">
+    <!-- Left Column: Actions -->
+    <div>
+        <div class="glass-card" style="border-top: 4px solid var(--primary-light);">
+            <h3 style="margin-bottom: 1.5rem;">Quick Create</h3>
             <form action="{{ url_for('add_task') }}" method="POST">
                 <div class="form-group">
                     <label>Task Title</label>
-                    <input type="text" name="title" placeholder="E.g., Finish Cloud Computing assignment" required>
+                    <input type="text" name="title" placeholder="Assignment name..." required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Deadline</label>
+                        <input type="date" name="deadline" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select name="priority">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea name="description" rows="3" placeholder="More details about this task..."></textarea>
+                    <textarea name="description" rows="2" placeholder="Brief details..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Deadline</label>
-                    <input type="date" name="deadline" required>
-                </div>
-                <button type="submit" style="width: 100%;">+ Add Task</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Task</button>
             </form>
         </div>
-        
-        <div class="card">
-            <h3 style="margin-bottom: 0;">Your Tasks</h3>
+
+        <div class="glass-card" style="border-top: 4px solid var(--secondary);">
+            <h3 style="margin-bottom: 1rem;">Upload Notes</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Files are mirrored to Cloud Object Storage automatically.</p>
+            <form action="{{ url_for('upload_note') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" name="note_file" accept=".pdf" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--secondary), #f472b6);">Upload PDF to S3</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Lists -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <div class="glass-card">
+            <h3 style="margin-bottom: 1.5rem;">Task Inventory</h3>
             {% if tasks %}
                 <table>
-                    <thead><tr><th>Task</th><th>Deadline</th><th>Status & Actions</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Task Details</th>
+                            <th>Priority</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {% for task in tasks %}
                         <tr>
                             <td>
-                                <strong>{{ task.task_title }}</strong><br>
-                                <small style="color: #6b7280;">{{ task.description }}</small>
+                                <div style="font-weight: 600;">{{ task.task_title }}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ task.deadline }} • {{ task.description[:40] }}{% if task.description|length > 40 %}...{% endif %}</div>
                             </td>
-                            <td>{{ task.deadline }}</td>
                             <td>
-                                <div style="margin-bottom: 0.5rem;">
-                                    {% if task.status == 'completed' %}
-                                        <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; background: #d1fae5; color: #065f46; font-size: 0.8rem; font-weight: 600;">✓ Completed</span>
-                                    {% else %}
-                                        <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.8rem; font-weight: 600;">Pending</span>
-                                    {% endif %}
-                                </div>
+                                <span class="badge badge-{{ task.priority|lower }}">{{ task.priority }}</span>
+                            </td>
+                            <td>
                                 <div style="display: flex; gap: 0.5rem;">
                                     {% if task.status == 'pending' %}
                                     <form action="{{ url_for('edit_task', task_id=task.task_id) }}" method="POST" style="margin: 0;">
                                         <input type="hidden" name="status" value="completed">
-                                        <button type="submit" class="btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Done</button>
+                                        <button type="submit" class="btn-success" style="padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.8rem; border: none; cursor: pointer;">Done</button>
                                     </form>
+                                    {% else %}
+                                        <span style="color: var(--success); font-size: 1.2rem;">✓</span>
                                     {% endif %}
                                     <form action="{{ url_for('delete_task', task_id=task.task_id) }}" method="POST" style="margin: 0;">
-                                        <button type="submit" class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Delete</button>
+                                        <button type="submit" class="btn-danger" style="padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.8rem; border: none; cursor: pointer;">Delete</button>
                                     </form>
                                 </div>
                             </td>
@@ -63,48 +138,39 @@
                     </tbody>
                 </table>
             {% else %}
-                <p style="color: #6b7280; padding: 1rem 0;">No tasks found. Add some!</p>
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    No tasks found matching your filters.
+                </div>
             {% endif %}
         </div>
-    </div>
 
-    <!-- Notes Section -->
-    <div>
-        <div class="card" style="border-top: 4px solid #10b981;">
-            <h3>Upload Study Material</h3>
-            <form action="{{ url_for('upload_note') }}" method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label>Select PDF File to Upload to Cloud</label>
-                    <input type="file" name="note_file" accept=".pdf" required>
-                </div>
-                <button type="submit" style="width: 100%; background-color: #10b981;">Upload to S3 Bucket</button>
-            </form>
-        </div>
-        
-        <div class="card">
-            <h3 style="margin-bottom: 0;">Cloud Object Storage</h3>
-            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0;">Files stored in S3 Cloud Container.</p>
+        <div class="glass-card">
+            <h3 style="margin-bottom: 1.5rem;">Notes Repository</h3>
             {% if notes %}
                 <table>
-                    <thead><tr><th>File Name</th><th>Date</th><th>Link</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Material Name</th>
+                            <th>Uploaded</th>
+                            <th>Storage Link</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {% for note in notes %}
                         <tr>
+                            <td style="font-weight: 500;">{{ note.file_name }}</td>
+                            <td style="font-size: 0.85rem; color: var(--text-muted);">{{ note.upload_date }}</td>
                             <td>
-                                <strong>{{ note.file_name }}</strong>
-                            </td>
-                            <td style="color: #6b7280; font-size: 0.875rem;">{{ note.upload_date }}</td>
-                            <td>
-                                <a href="{{ note.file_url }}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                    View Box ↗
-                                </a>
+                                <a href="{{ note.file_url }}" target="_blank" style="color: var(--primary-light); text-decoration: none; font-size: 0.9rem; font-weight: 600;">S3-Node ↗</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             {% else %}
-                <p style="color: #6b7280; padding: 1rem 0;">No notes uploaded yet.</p>
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    Cloud storage is empty.
+                </div>
             {% endif %}
         </div>
     </div>

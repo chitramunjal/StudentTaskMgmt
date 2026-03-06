@@ -103,14 +103,39 @@ def dashboard():
         return redirect(url_for('login'))
     
     user_id = session['user_id']
+    search_query = request.args.get('search', '')
+    priority_filter = request.args.get('priority', '')
     
     db = get_db_connection()
     tasks = []
     notes = []
+    
+    # Mock Cloud Stats
+    cloud_stats = {
+        'cpu_usage': '24%',
+        'memory_usage': '1.2GB / 2GB',
+        'disk_usage': '8.5GB / 20GB',
+        'uptime': '14 days, 6 hours',
+        'status': 'Healthy'
+    }
+
     if db:
         cursor = db.cursor(dictionary=True)
-        # Fetch tasks
-        cursor.execute("SELECT * FROM tasks WHERE user_id=%s ORDER BY deadline ASC", (user_id,))
+        # Fetch tasks with filtering
+        query = "SELECT * FROM tasks WHERE user_id=%s"
+        params = [user_id]
+        
+        if search_query:
+            query += " AND (task_title LIKE %s OR description LIKE %s)"
+            params.extend([f"%{search_query}%", f"%{search_query}%"])
+        
+        if priority_filter:
+            query += " AND priority = %s"
+            params.append(priority_filter)
+            
+        query += " ORDER BY deadline ASC"
+        
+        cursor.execute(query, tuple(params))
         tasks = cursor.fetchall()
         
         # Fetch notes
@@ -120,7 +145,7 @@ def dashboard():
         cursor.close()
         db.close()
         
-    return render_template("dashboard.html", tasks=tasks, notes=notes, name=session.get('name'))
+    return render_template("dashboard.html", tasks=tasks, notes=notes, name=session.get('name'), cloud_stats=cloud_stats, search_query=search_query, priority_filter=priority_filter)
 
 @app.route("/addtask", methods=["POST"])
 def add_task():
@@ -130,13 +155,14 @@ def add_task():
     title = request.form['title']
     description = request.form['description']
     deadline = request.form['deadline']
+    priority = request.form.get('priority', 'Medium')
     
     db = get_db_connection()
     if db:
         cursor = db.cursor()
         cursor.execute(
-            "INSERT INTO tasks (user_id, task_title, description, deadline) VALUES (%s, %s, %s, %s)",
-            (session['user_id'], title, description, deadline)
+            "INSERT INTO tasks (user_id, task_title, description, deadline, priority) VALUES (%s, %s, %s, %s, %s)",
+            (session['user_id'], title, description, deadline, priority)
         )
         db.commit()
         cursor.close()
