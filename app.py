@@ -8,21 +8,27 @@ import datetime
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'  # In production, use environment variables
 
+import time
+
 # --- Database Connection ---
 def get_db_connection():
-    try:
-        connection = mysql.connector.connect(
-            host="database",
-            user="root",
-            password="password",
-            database="studentdb",
-            # Added connection timeout and retry logic for docker startup robustness
-            connect_timeout=10
-        )
-        return connection
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-        return None
+    retries = 5
+    while retries > 0:
+        try:
+            connection = mysql.connector.connect(
+                host="database",
+                user="root",
+                password="password",
+                database="studentdb",
+                connect_timeout=10
+            )
+            return connection
+        except Exception as e:
+            print(f"Database connection failed. Retries left: {retries-1}. Error: {e}")
+            retries -= 1
+            if retries > 0:
+                time.sleep(2) # Wait 2 seconds before retrying
+    return None
 
 # --- S3 Configuration ---
 # Uses dummy/mock credentials by default to avoid crashing on local demo

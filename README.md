@@ -1,6 +1,10 @@
-# Cloud-Based Student Task & Notes Management System
+# Student Task & Notes Manager
 
-This repository contains the source code for a cloud-ready Student Task and Notes Management system as requested by the assignment. 
+![Project Status](https://img.shields.io/badge/status-ready%20for%20deployment-success)
+![Tech Stack](https://img.shields.io/badge/stack-Flask%20%7C%20MySQL%20%7C%20Docker%20%7C%20S3-blue)
+![Platform](https://img.shields.io/badge/platform-AWS-orange)
+
+This repository contains the source code for a cloud-ready Student Task and Notes Management system. 
 
 ## Local Development (Docker)
 1. Ensure Docker and Docker Compose are installed.
