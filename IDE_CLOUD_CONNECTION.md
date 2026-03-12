@@ -1,4 +1,4 @@
-# Connecting VS Code to AWS EC2 ☁️
+# Connecting VS Code to AWS EC2 
 
 Follow these steps to connect your local IDE directly to your AWS Cloud instance for seamless development and debugging.
 
