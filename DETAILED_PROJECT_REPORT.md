@@ -1,4 +1,4 @@
-# Comprehensive Technical Report: Cloud-Based Student Hub ☁️🎓
+# Comprehensive Technical Report: Cloud-Based Student Hub 
 
 **Project Name:** Student Task & Notes Management System  
 **Framework:** Flask (Python)  
