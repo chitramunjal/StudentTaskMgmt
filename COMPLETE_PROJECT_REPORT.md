@@ -1,4 +1,4 @@
-# Project Report: Cloud-Based Student Task & Notes Management System 🎓☁️
+# Project Report: Cloud-Based Student Task & Notes Management System 
 
 **Date:** March 11, 2026  
 **Developer:** [Your Name]  
