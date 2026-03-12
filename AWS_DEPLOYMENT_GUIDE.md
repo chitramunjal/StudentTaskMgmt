@@ -1,4 +1,4 @@
-# AWS Cloud Deployment Guide 🚀
+# AWS Cloud Deployment Guide 
 
 This guide provides step-by-step instructions to deploy your **Student Task & Notes Manager** to AWS using **EC2** (Virtual Machine) and **S3** (Object Storage).
 
